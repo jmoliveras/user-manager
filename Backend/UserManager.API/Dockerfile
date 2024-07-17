@@ -11,17 +11,17 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-1809 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["UserManager.csproj", "."]
-RUN dotnet restore "./././UserManager.csproj"
+COPY ["UserManager.API/UserManager.API.csproj", "UserManager.API/"]
+RUN dotnet restore "./UserManager.API/./UserManager.API.csproj"
 COPY . .
-WORKDIR "/src/."
-RUN dotnet build "./UserManager.csproj" -c %BUILD_CONFIGURATION% -o /app/build
+WORKDIR "/src/UserManager.API"
+RUN dotnet build "./UserManager.API.csproj" -c %BUILD_CONFIGURATION% -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./UserManager.csproj" -c %BUILD_CONFIGURATION% -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./UserManager.API.csproj" -c %BUILD_CONFIGURATION% -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "UserManager.dll"]
+ENTRYPOINT ["dotnet", "UserManager.API.dll"]
