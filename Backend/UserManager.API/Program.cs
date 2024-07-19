@@ -27,8 +27,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAllUsersQueryHandler).Assembly));
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
-var downloadServiceSettings = builder.Configuration.GetSection("DownloadService").Get<UserDownloadServiceSettings>();
-builder.Services.Configure<UserDownloadServiceSettings>(builder.Configuration.GetSection("DownloadService"));
+var downloadServiceSettings = builder.Configuration.GetSection("UserDownloadService").Get<UserDownloadServiceSettings>();
+builder.Services.Configure<UserDownloadServiceSettings>(builder.Configuration.GetSection("UserDownloadServic"));
 
 builder.Services.AddHttpClient("UserApiClient", client =>
 {

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using UserManager.Application.DTO;
 using UserManager.Application.Interfaces;
@@ -11,7 +12,7 @@ using UserManager.Domain.Interfaces;
 namespace UserManager.Application.Services
 {
 
-    public class UserDownloadService(IServiceProvider serviceProvider, UserDownloadServiceSettings settings,
+    public class UserDownloadService(IServiceProvider serviceProvider, IOptions<UserDownloadServiceSettings> settings,
         IHttpClientFactory httpClientFactory, IMapper mapper) : BackgroundService, IUserDownloadService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -19,7 +20,7 @@ namespace UserManager.Application.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 await DownloadAndSaveUsersAsync();
-                await Task.Delay(TimeSpan.FromMinutes(settings.ExecutionIntervalMinutes), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(settings.Value.ExecutionIntervalMinutes), stoppingToken);
             }
         }
 
