@@ -4,16 +4,9 @@ using UserManager.Infrastructure.Data;
 
 namespace UserManager.Infrastructure.Repositories
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericRepository<T>(ApplicationDbContext context) : IGenericRepository<T> where T : class
     {
-        private readonly ApplicationDbContext _context;
-        private readonly DbSet<T> _dbSet;
-
-        public GenericRepository(ApplicationDbContext context)
-        {
-            _context = context;
-            _dbSet = context.Set<T>();
-        }
+        private readonly DbSet<T> _dbSet = context.Set<T>();
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
@@ -28,14 +21,20 @@ namespace UserManager.Infrastructure.Repositories
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
+        }
+
+        public async Task AddRangeAsync(IEnumerable<T> entities)
+        {
+            await _dbSet.AddRangeAsync(entities);
+            await context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(T entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
+            context.Entry(entity).State = EntityState.Modified;
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
@@ -45,7 +44,18 @@ namespace UserManager.Infrastructure.Repositories
             if (entity != null)
             {
                 _dbSet.Remove(entity);
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeleteAllAsync()
+        {
+            var entities = await GetAllAsync();
+
+            if (entities != null)
+            {
+                _dbSet.RemoveRange(entities);
+                await context.SaveChangesAsync();
             }
         }
     }

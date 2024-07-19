@@ -1,8 +1,8 @@
 ﻿using MediatR;
 
-namespace Application.Commands.Requests
+namespace UserManager.Application.Commands.Requests
 {
-    public class DeleteUserCommand : IRequest
+    public class DeleteUserCommand : IRequest<bool>
     {
         public int Id { get; set; }
     }
