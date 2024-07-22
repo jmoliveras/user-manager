@@ -13,6 +13,7 @@ using UserManager.Application.Commands.Requests;
 using UserManager.Application.Commands.Handlers;
 using UserManager.Application.Settings;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Mvc.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,7 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAl
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 var downloadServiceSettings = builder.Configuration.GetSection("UserDownloadService").Get<UserDownloadServiceSettings>();
-builder.Services.Configure<UserDownloadServiceSettings>(builder.Configuration.GetSection("UserDownloadServic"));
+builder.Services.Configure<UserDownloadServiceSettings>(builder.Configuration.GetSection("UserDownloadService"));
 
 builder.Services.AddHttpClient("UserApiClient", client =>
 {
@@ -45,12 +46,29 @@ builder.Services.AddHostedService<UserDownloadService>();
 
 builder.Services.AddSwaggerGen(c =>
 {
+    c.CustomOperationIds(d => d.ActionDescriptor is ControllerActionDescriptor controllerActionDescriptor
+       ? controllerActionDescriptor.MethodInfo.Name
+       : d.ActionDescriptor.AttributeRouteInfo?.Name);
+
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Version = "v1",
         Title = "User Management API",
         Description = "An API to manage users"
     });    
+});
+
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+        });
 });
 
 var app = builder.Build();
@@ -65,6 +83,8 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "User Management API v1");
         c.RoutePrefix = string.Empty; 
     });
+
+    app.UseCors("AllowAllOrigins"); 
 }
 
 // Configure the HTTP request pipeline.

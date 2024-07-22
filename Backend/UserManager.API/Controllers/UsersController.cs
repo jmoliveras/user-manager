@@ -3,25 +3,16 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using UserManager.Application.DTO;
 using UserManager.Application.Queries.Requests;
+using UserManager.API.Controllers.Base;
 
 namespace UserManager.API.Controllers
-{  
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UsersController : ControllerBase
+{      
+    public class UsersController(IMediator mediator) : ApiBaseController
     {
-        private readonly IMediator _mediator;
-
-        public UsersController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
-
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
-            var users = await _mediator.Send(new GetAllUsersQuery());
+            var users = await mediator.Send(new GetAllUsersQuery());
             return Ok(users);
         }        
 
@@ -33,7 +24,7 @@ namespace UserManager.API.Controllers
                 return BadRequest();
             }
 
-            var result = await _mediator.Send(new UpdateUserCommand { UserDto = userDto });
+            var result = await mediator.Send(new UpdateUserCommand { UserDto = userDto });
             if (!result)
             {
                 return NotFound();
@@ -45,7 +36,7 @@ namespace UserManager.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var result = await _mediator.Send(new DeleteUserCommand { Id = id });
+            var result = await mediator.Send(new DeleteUserCommand { Id = id });
             if (!result)
             {
                 return NotFound();

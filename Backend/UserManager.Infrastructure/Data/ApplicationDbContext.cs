@@ -14,7 +14,9 @@ namespace UserManager.Infrastructure.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired();
                 entity.Property(e => e.Username).IsRequired();
-                entity.Property(e => e.Email).IsRequired();               
+                entity.Property(e => e.Email).IsRequired();
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
             });
         }
     }

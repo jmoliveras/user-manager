@@ -43,20 +43,15 @@ namespace UserManager.Infrastructure.Repositories
 
             if (entity != null)
             {
-                _dbSet.Remove(entity);
+                context.Remove(entity);
                 await context.SaveChangesAsync();
             }
         }
 
         public async Task DeleteAllAsync()
         {
-            var entities = await GetAllAsync();
-
-            if (entities != null)
-            {
-                _dbSet.RemoveRange(entities);
-                await context.SaveChangesAsync();
-            }
+            context.RemoveRange(_dbSet.ToList());
+            await context.SaveChangesAsync();
         }
     }
 }
